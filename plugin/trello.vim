@@ -30,7 +30,9 @@ try:
 
     for x in request:
         name = x['name'].encode("utf-8")
+        url = x['url'].encode("utf-8")
         vim.current.buffer.append("→ %s"%name)
+        vim.current.buffer.append("URL: %s"%url)
         vim.current.buffer.append(35*"-")
 
 except Exception, e:
