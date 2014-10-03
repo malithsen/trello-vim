@@ -19,6 +19,10 @@ f = codecs.open(os.path.expanduser('~') + '/' + CON_FILE)
 keys = f.read().split('\n')
 KEY = keys[0]
 TOKEN = keys[1]
+SHOW_CARD_URL = int(keys[2]) if len(keys) > 2 and keys[2] else False
+SHOW_LABELS = int(keys[3]) if len(keys) > 3 and keys[3]  else False
+SHOW_DONE_CARDS = int(keys[4]) if len(keys) > 4 and keys[4]  else False
+
 KEY_TOKEN = {'key': KEY, 'token': TOKEN}
 CARDS_URL = 'https://trello.com/1/members/my/cards?key={key}&token={token}'.format(**KEY_TOKEN)
 LISTS_URL = 'https://trello.com/1/lists/%s?key={key}&token={token}'.format(**KEY_TOKEN)
@@ -34,23 +38,27 @@ try:
     for card in request:
         name = card['name'].encode("UTF-8")
         url = card['url'].encode("UTF-8")
-        labels = []
-        for label in card['labels']:
-            labels.append(label['name'].encode('UTF-8') or 'Unnamed')
         column_id = card['idList']
         column_name = columns.get(column_id, None)
         if not column_name:
             COLUMN_URL = LISTS_URL % column_id
             column_request = json.loads(urllib2.urlopen(COLUMN_URL).read())
-            columns.update({column_id: column_request['name'].encode('UTF-8')})
+            column_name = column_request['name'].encode('UTF-8')
+            columns.update({column_id: column_name})
 
-        vim.current.buffer.append("→→ %s" % column_request['name'].encode('UTF-8'))
-        vim.current.buffer.append("→ %s" % name)
-        if labels:
-            all_labels = ', '.join(labels)
-            vim.current.buffer.append("Labels: %s" % all_labels)
-        vim.current.buffer.append("URL: %s" % url)
-        vim.current.buffer.append(35 * "-")
+        if SHOW_DONE_CARDS or column_name != 'Done':
+            vim.current.buffer.append("→→ %s" % column_request['name'].encode('UTF-8'))
+            vim.current.buffer.append("→ %s" % name)
+            if SHOW_LABELS:
+                labels = []
+                for label in card['labels']:
+                    labels.append(label['name'].encode('UTF-8') or 'Unnamed')
+                all_labels = ', '.join(labels)
+                if all_labels:
+                    vim.current.buffer.append("Labels: %s" % all_labels)
+            if SHOW_CARD_URL:
+                vim.current.buffer.append("URL: %s" % url)
+            vim.current.buffer.append(35 * "-")
 
 except Exception, e:
     print e
