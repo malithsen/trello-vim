@@ -52,7 +52,7 @@ try:
             if SHOW_LABELS:
                 labels = []
                 for label in card['labels']:
-                    labels.append(label['name'].encode('UTF-8') or 'Unnamed')
+                    labels.append(label['name'].encode('UTF-8') or label['color'].encode('UTF-8'))
                 all_labels = ', '.join(labels)
                 if all_labels:
                     vim.current.buffer.append("Labels: %s" % all_labels)
