@@ -3,10 +3,12 @@
 import os
 import urlparse
 import codecs
+import json
 
 import oauth2 as oauth
 
 CON_FILE = '.trello-vim'
+configs = {'key': None, 'token': None, 'url': False, 'label':False, 'done_cards': False}
 
 def create_oauth_token():
     """
@@ -77,15 +79,27 @@ def create_oauth_token():
     resp, content = client.request(access_token_url, "POST")
     access_token = dict(urlparse.parse_qsl(content))
 
-    f = codecs.open(os.path.expanduser('~') + '/' + CON_FILE, 'a')
-    f.write(trello_key+'\n')
-    f.write(access_token['oauth_token'])
-    f.close
+    configs['key'] = trello_key
+    configs['token'] = access_token['oauth_token']
+    show_url = raw_input('Do you want to show card urls?(y/n)')
+    if show_url.lower() == 'y':
+        configs['url'] = True
+
+    show_label = raw_input('Do you want to show card labels?(y/n)')
+    if show_label.lower() == 'y':
+        configs['label'] = True
+
+    show_done_cards = raw_input('Do you want to show done cards?(y/n)')
+    if show_done_cards.lower() == 'y':
+        configs['done_cards'] = True
+
+    f = codecs.open(os.path.expanduser('~') + '/' + CON_FILE, 'wb')
+    json.dump(configs, f)
 
     print "Access Token:"
     print "    - oauth_token        = %s" % access_token['oauth_token']
     print
-    print "key and token are now saved in .trello-vim file in home directory."
+    print "Configurations are now saved in .trello-vim file in home directory."
     print "You are ready to use the plugin"
 
 if __name__ == '__main__':

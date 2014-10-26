@@ -16,14 +16,13 @@ import codecs
 CON_FILE = '.trello-vim'
 
 f = codecs.open(os.path.expanduser('~') + '/' + CON_FILE)
-keys = f.read().split('\n')
-KEY = keys[0]
-TOKEN = keys[1]
-SHOW_CARD_URL = int(keys[2]) if len(keys) > 2 and keys[2] else False
-SHOW_LABELS = int(keys[3]) if len(keys) > 3 and keys[3]  else False
-SHOW_DONE_CARDS = int(keys[4]) if len(keys) > 4 and keys[4]  else False
+configs = json.loads(f.read())
 
-KEY_TOKEN = {'key': KEY, 'token': TOKEN}
+SHOW_CARD_URL = configs['url']
+SHOW_LABELS = configs['label']
+SHOW_DONE_CARDS = configs['done_cards']
+
+KEY_TOKEN = {'key': configs['key'], 'token': configs['token']}
 CARDS_URL = 'https://trello.com/1/members/my/cards?key={key}&token={token}'.format(**KEY_TOKEN)
 LISTS_URL = 'https://trello.com/1/lists/%s?key={key}&token={token}'.format(**KEY_TOKEN)
 
